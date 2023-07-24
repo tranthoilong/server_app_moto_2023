@@ -16,7 +16,7 @@ class OrderController extends Controller
 
     public function huyDonHang($orderId)
     {
-        // Kiểm tra xem id order có tồn tại trong cơ sở dữ liệu không
+     
         $order = Order::find($orderId);
         if (!$order || $order->status == 2) {
             return response()->json(['message' => 'Không tìm thấy đơn hàng'], 404);
@@ -33,7 +33,7 @@ class OrderController extends Controller
 
                 if ($product) {
                     // return response()->json(['message' => $product], 200);
-                    // Trả lại số lượng sản phẩm và giảm like
+                  
                     $product->number += $orderDetail->quantity;
                     $product->like--;
                     $product->save();
@@ -71,11 +71,11 @@ class OrderController extends Controller
 
             $userOrders = $query->paginate($perPage);
 
-            // Load product information for each order
+           
             $userOrders->getCollection()->transform(function ($order) {
                 $orderDetails = Order_details::where('order_id', $order->id)->get();
 
-                // Load detailed information for each product
+              
                 $orderDetails->transform(function ($orderDetail) {
                     $product = Product::findOrFail($orderDetail->product_id);
                     $orderDetail->product = $product;
@@ -128,14 +128,14 @@ class OrderController extends Controller
         // Khởi tạo mảng trạng thái mặc định
         $defaultStatus = [0, 1, 2, 3, 4, 5];
 
-        // Lấy số lượng theo trạng thái từ bảng Order
+      
         $statusCounts = Order::where('user_id', auth()->user()->id)
             ->select('status', DB::raw('count(*) as total'))
             ->groupBy('status')
             ->pluck('total', 'status')
             ->toArray();
 
-        // Đảm bảo tồn tại mục nhập cho các trạng thái mặc định
+      
         foreach ($defaultStatus as $status) {
             if (!array_key_exists($status, $statusCounts)) {
                 $statusCounts[$status] = 0;
