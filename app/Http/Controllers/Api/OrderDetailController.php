@@ -47,7 +47,7 @@ class OrderDetailController extends Controller
 
         $userOrderDetails = $query->orderBy('created_at', 'desc')->paginate($perPage);
 
-        // Lấy thông tin sản phẩm và tên cho từng order detail
+       
         $userOrderDetails->getCollection()->transform(function ($orderDetail) {
             $product = Product::findOrFail($orderDetail->product_id);
             $orderDetail->product = $product;
@@ -55,7 +55,7 @@ class OrderDetailController extends Controller
             return $orderDetail;
         });
 
-        // Lấy thông tin user cho mỗi order
+
         $userOrderDetails->getCollection()->transform(function ($orderDetail) {
             $order = Order::findOrFail($orderDetail->order_id);
             $user = User::findOrFail($order->user_id);
@@ -147,10 +147,10 @@ class OrderDetailController extends Controller
             // $order->invoice_no = $data['invoice_no'];
 
             $order->save();
-            // $deliveryAddress = Delivery_address::where('user_id', auth()->user()->id)->first();
+           
             $orderDetails = $requestData['order_details'];
-            $invalidQuantityProducts = []; // Mảng lưu các sản phẩm số lượng không hợp lệ
-            $totalPrice = 0; // Tổng giá của đơn hàng
+            $invalidQuantityProducts = [];
+            $totalPrice = 0; 
 
             foreach ($orderDetails as $orderDetailData) {
                 if (isset($orderDetailData['product_id']) && isset($orderDetailData['quantity'])) {
@@ -158,7 +158,7 @@ class OrderDetailController extends Controller
                     $orderDetailQuantity = $orderDetailData['quantity'];
 
                     if ($orderDetailQuantity > $product->number) {
-                        // Số lượng trong order detail lớn hơn số lượng có sẵn trong bảng product
+                 
                         $invalidQuantityProducts[] = $product->name;
                     } else {
                         $orderDetail = new Order_details();
@@ -168,16 +168,16 @@ class OrderDetailController extends Controller
                         $orderDetail->quantity = $orderDetailQuantity;
                         $orderDetail->price = $orderDetailData['price'];
 
-                        // $orderDetail->price = $product->price;
+                   
                         $orderDetail->status = 1;
                         $orderDetail->save();
 
-                        // Trừ số lượng sản phẩm trong bảng Product
+                       
                         $product->number -= $orderDetailQuantity;
                         $product->like += $orderDetailQuantity;
                         $product->save();
 
-                        // Tính giá của sản phẩm và cộng vào tổng giá của đơn hàng
+                    
                         $productPrice =   $orderDetail->price * $orderDetailQuantity;
                         $totalPrice += $productPrice;
                         $totalPrice += $order->ship;
@@ -189,25 +189,24 @@ class OrderDetailController extends Controller
             }
 
             if (!empty($invalidQuantityProducts)) {
-                // Hủy bỏ giao dịch nếu có sản phẩm số lượng không hợp lệ
+      
                 DB::rollBack();
 
-                // Trả về thông báo về sản phẩm số lượng không hợp lệ
                 $message = 'Số lượng không hợp lệ cho các sản phẩm sau: ' . implode(', ', $invalidQuantityProducts);
                 return response()->json(['message' => $message], 400);
             }
 
-            // Cập nhật total_price của đơn hàng
+         
             $order->total_price = $totalPrice;
             $order->save();
 
-            DB::commit(); // Lưu các thay đổi vào cơ sở dữ liệu
+            DB::commit(); 
 
             return response()->json(['message' => 'Đơn hàng đã được lưu'], 200);
         } catch (\Exception $e) {
-            DB::rollBack(); // Hủy bỏ giao dịch nếu có lỗi xảy ra
+            DB::rollBack(); 
 
-            // Trả về thông báo lỗi
+          
             return response()->json(['message' => 'Đã xảy ra lỗi trong quá trình lưu đơn hàng'], 500);
         }
     }
