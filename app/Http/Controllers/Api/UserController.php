@@ -33,21 +33,21 @@ class UserController extends Controller
     }
     public function getUserInfo(Request $request)
     {
-        // Kiểm tra xem người dùng đã đăng nhập hay chưa
+    
         if (!auth()->check()) {
             return response()->json(['message' => 'Bạn chưa đăng nhập', 'status' => 401], 401);
         }
 
-        // Lấy thông tin user
+
         $user = auth()->user();
 
-        // Tải ảnh của user và trả về URL của ảnh
+       
         $image_url = null;
         if ($user->image) {
             $image_url = Storage::url("user/{$user->image}");
         }
 
-        // Trả về thông tin user và URL của ảnh
+       
         return response()->json([
             'message' => 'Successful',
             'status' => 200,
@@ -128,7 +128,7 @@ class UserController extends Controller
         $user = User::where('email', $email)->first();
 
         if ($user) {
-            // Email đã tồn tại
+           
             $token = $user->createToken('authToken', ['expires_in' => 10])->plainTextToken;
             return response()->json([
                 'status' => 200,
@@ -141,7 +141,7 @@ class UserController extends Controller
                 'name' => $request->input('name'),
                 'email' => $email,
                 'login' => 2
-                // Thêm các trường dữ liệu khác của người dùng nếu cần thiết
+           
             ]);
 
             if ($newUser) {
@@ -175,7 +175,7 @@ class UserController extends Controller
         // $user = DB::table('users')->where('email', $request->email)->first();
         $type = DB::table('users')->where('login', 1)->where('email', $request->email)->first();
 
-        if ($type) { // Kiểm tra cả hai điều kiện
+        if ($type) { 
             return response()->json([
                 'message' => 'Email tồn tại và login = 1',
             ], 200);
@@ -236,7 +236,7 @@ class UserController extends Controller
             $user->name = $request->input('name', $user->name);
             // $user->email = $request->input('email', $user->email);
 
-            // Kiểm tra và lưu số điện thoại nếu có
+        
             $phone = $request->input('phone');
             if ($phone !== null) {
                 if (!preg_match('/^0\d{9}$/', $phone) || strlen($phone) !== 10) {
