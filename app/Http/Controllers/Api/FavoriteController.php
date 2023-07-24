@@ -33,24 +33,24 @@ class FavoriteController extends Controller
 
     public function store(Request $request)
     {
-        // Kiểm tra sản phẩm có trong danh sách yêu thích của user không
+       
         $favorite = Favorite::where('user_id', auth()->user()->id)
             ->where('product_id', $request->product_id)
             ->first();
 
-        // Nếu sản phẩm đã tồn tại trong danh sách yêu thích của user thì trả về lỗi
+      
         if ($favorite) {
             $favorite->delete();
             return response()->json(['status' => 201, 'message' => 'Product is already in favorites'], 400);
         }
 
-        // Nếu sản phẩm chưa tồn tại thì tạo mới
+     
         $favorite = Favorite::create([
             'user_id' => auth()->user()->id,
             'product_id' => $request->product_id,
         ]);
 
-        // Tăng giá trị trường like của sản phẩm
+      
         $product = Product::findOrFail($request->product_id);
         $product->like += 1;
         $product->save();
@@ -75,7 +75,7 @@ class FavoriteController extends Controller
     {
         $favorite = Favorite::findOrFail($id);
 
-        // Giảm giá trị trường like của sản phẩm nếu đã yêu thích trước đó
+       
         if ($favorite->exists()) {
             $product = Product::findOrFail($favorite->product_id);
             $product->like -= 1;
